@@ -1,0 +1,197 @@
+﻿<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warsztat – Logowanie / Rejestracja</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+background: url('tlo.jpg') no-repeat center center fixed;
+background-size: cover;
+margin: 0; padding: 0;
+display: flex; justify-content: center; align-items: center;
+height: 100vh;
+}
+body::after {
+content: ""; position: fixed; top:0; left:0; width:100%; height:100%;
+background: rgba(0,0,0,0.55); z-index: -1;
+}
+.container {
+background: #000; color: #fff; padding: 25px 20px; border-radius: 12px;
+box-shadow: 0 2px 8px rgba(0,0,0,0.5); width: 90%; max-width: 360px;
+text-align: center; box-sizing: border-box;
+}
+h2 { margin-bottom: 20px; }
+
+/* Logotyp */
+.logo img {
+width: 60vw;
+max-width: 220px;
+min-width: 120px;
+height: auto;
+display: block;
+margin: 20px auto 25px auto;
+}
+
+/* Pola tekstowe i e-mail */
+input[type="text"],
+input[type="email"],
+.password-container input {
+font-size: 16px;
+line-height: 1.4;
+color: #fff;
+border-radius: 999px;
+border: 1px solid #444;
+background: #111;
+padding: 10px 12px;
+margin-bottom: 12px;
+width: 100%;
+box-sizing: border-box;
+outline: none;
+}
+
+/* Pole hasła z ikoną oka */
+.password-container {
+position: relative;
+margin-bottom: 12px;
+}
+.password-container .eye-btn {
+position: absolute;
+top: 50%;
+right: 12px;
+transform: translateY(-50%);
+background: none;
+border: none;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.password-container .eye-btn svg {
+width: 20px;
+height: 20px;
+stroke: gold;
+}
+
+/* Przycisk logowania / rejestracji */
+button#submitBtn {
+font-size: 16px;
+font-weight: 700;
+padding: 12px;
+border-radius: 999px;
+background: gold;
+color: #000;
+border: none;
+cursor: pointer;
+width: 100%;
+}
+button#submitBtn:hover { background: #ffd700; }
+
+/* Switch i forgot */
+.switch, .forgot-pass {
+font-size: 14px; color: #ccc; cursor: pointer; margin-top: 12px;
+}
+.switch:hover, .forgot-pass:hover { color: #fff; text-decoration: underline; }
+
+/* Wiadomości błędów / demo */
+.message { margin-bottom: 10px; font-size: 14px; color: red; min-height: 18px; }
+
+#nickField, #pass2Field, #avatarField { display: none; }
+#avatarPreview { margin:10px 0; max-width:80px; max-height:80px; border-radius:50%; display:none; }
+
+</style>
+</head>
+<body>
+<div class="container">
+<div class="logo"><img src="logo.png" alt="Logo Warsztat"></div>
+<h2 id="formTitle">Logowanie</h2>
+<div class="message" id="msg"></div>
+
+<div id="nickField"><input type="text" id="nick" placeholder="Nick"></div>
+<input type="email" id="email" placeholder="E-mail" required>
+
+<div id="passwordField" class="password-container">
+<input type="password" id="password" placeholder="Hasło" required>
+<button type="button" class="eye-btn" id="togglePass">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="gold" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+<circle cx="12" cy="12" r="3"/>
+</svg>
+</button>
+</div>
+
+<div id="pass2Field" class="password-container">
+<input type="password" id="password2" placeholder="Powtórz hasło">
+<button type="button" class="eye-btn" id="togglePass2">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="gold" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+<circle cx="12" cy="12" r="3"/>
+</svg>
+</button>
+</div>
+
+<div id="avatarField">
+<input type="file" id="avatar" accept="image/*">
+<img id="avatarPreview" src="#" alt="Podgląd avatara">
+</div>
+
+<button id="submitBtn">Zaloguj</button>
+<div class="forgot-pass" id="forgotPass">Nie pamiętasz hasła?</div>
+<div class="switch" id="switchForm">Nie masz konta? Zarejestruj się</div>
+</div>
+
+<script>
+const formTitle = document.getElementById("formTitle");
+const switchForm = document.getElementById("switchForm");
+const submitBtn = document.getElementById("submitBtn");
+const msg = document.getElementById("msg");
+const forgotPass = document.getElementById("forgotPass");
+
+const nickField = document.getElementById("nickField");
+const pass2Field = document.getElementById("pass2Field");
+const avatarField = document.getElementById("avatarField");
+
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const password2 = document.getElementById("password2");
+const nick = document.getElementById("nick");
+const avatar = document.getElementById("avatar");
+const avatarPreview = document.getElementById("avatarPreview");
+
+const togglePass = document.getElementById("togglePass");
+const togglePass2 = document.getElementById("togglePass2");
+
+let isLogin = true;
+
+// Przełączanie formularza
+switchForm.addEventListener("click", () => {
+isLogin = !isLogin;
+if(isLogin){
+formTitle.textContent = "Logowanie";
+submitBtn.textContent = "Zaloguj";
+switchForm.textContent = "Nie masz konta? Zarejestruj się";
+nickField.style.display = "none";
+pass2Field.style.display = "none";
+avatarField.style.display = "none";
+forgotPass.style.display = "block";
+} else {
+formTitle.textContent = "Rejestracja";
+submitBtn.textContent = "Zarejestruj się";
+switchForm.textContent = "Masz już konto? Zaloguj się";
+nickField.style.display = "block";
+pass2Field.style.display = "block";
+avatarField.style.display = "block";
+forgotPass.style.display = "none";
+}
+msg.textContent = "";
+});
+
+// Pokazywanie/ukrywanie hasła
+togglePass.addEventListener("click", () => {
+password.type = password.type === "password" ? "text" : "password";
+togglePass.querySelector("svg").setAttribute("stroke", password.type==="text" ? "white" : "gold");
+});
+togglePass2.addEventListener("click", () => {
+password2.type = password2.type === "password" ? "text" : "password";
+togglePass2
